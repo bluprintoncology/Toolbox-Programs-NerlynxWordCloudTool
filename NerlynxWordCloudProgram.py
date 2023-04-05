@@ -40,10 +40,23 @@ if content_uploaded_file and stopword_uploaded_file is not None:
 
 #input file take as bytes data, need to read out information from bytes back to string - need to append to list after
     st.subheader('Review Input data (Optional)')
-    if st.checkbox('Show input data'):
-        st.subheader('Input data')
-        st.write(df)
+    preview = st.checkbox('Show input data')
+    preview_placeholder = st.empty()
+    if preview:
+        with preview_placeholder.container():
+            st.subheader('Input data')
+            st.write(df)
+            #st.write("Review your input data before continuing to run the tool")
+            st.stop() #Box checked: stops run
+    else:
+        preview_placeholder.empty() #Box unchecked: continues to run and no dataframe shown
+
+
     comment_words = ""
+
+    placeholder=st.empty()
+    placeholder.text("Generating WordCloud. Please wait...")
+
     for val in df.CONTENT: 
     # typecaste each val to string 
         val = str(val) 
@@ -55,7 +68,8 @@ if content_uploaded_file and stopword_uploaded_file is not None:
         for words in tokens:
             comment_words = comment_words + words + ' '
     #st.write(comment_words)
-
+    placeholder.empty()
+    
     st.subheader('Customize WordCloud Design(Optional)')
     wordcloud = WordCloud(width = 800, height = 800, 
         background_color = st.color_picker('Select a background color','#fff'), 
@@ -64,7 +78,8 @@ if content_uploaded_file and stopword_uploaded_file is not None:
         min_font_size = 10).generate(comment_words)
 
 # plot the WordCloud image
-    figure = plt.figure(figsize = (8, 8), facecolor = None) 
+    figure = plt.figure(figsize = (8, 8), facecolor = None)
+    # placeholder.empty() 
     plt.imshow(wordcloud) 
     plt.axis("off") 
     plt.tight_layout(pad = 0)
@@ -78,7 +93,3 @@ if content_uploaded_file and stopword_uploaded_file is not None:
         file_name='WordCloud.png',
         mime='image/png',
     )
- 
-
-
-
