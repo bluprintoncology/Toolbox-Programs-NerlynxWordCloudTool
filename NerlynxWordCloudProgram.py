@@ -8,6 +8,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud, STOPWORDS
 import streamlit_ext as ste 
+from unidecode import unidecode
 
 
 def convert_stopwordfile (stopword_file):
@@ -25,7 +26,7 @@ def convert_plot():
 
 
 # Add Title for Streamlit App
-st.title('NerlynxWordCloudTool')
+st.title('WordCloudTool')
 
 # File Uploader widgets with specified .csv and .txt file types with error statements returned
 st.subheader("Select a CSV file")
@@ -37,7 +38,7 @@ if content_uploaded_file and stopword_uploaded_file is not None:
     
 #add check point to see if files are uploaded
     df = pd.read_csv(content_uploaded_file,encoding="latin-1") #error until files loaded
-
+    df = df["CONTENT"].apply(unidecode)
 #input file take as bytes data, need to read out information from bytes back to string - need to append to list after
     st.subheader('Review Input data (Optional)')
     preview = st.checkbox('Show input data')
@@ -57,7 +58,7 @@ if content_uploaded_file and stopword_uploaded_file is not None:
     placeholder=st.empty()
     placeholder.text("Generating WordCloud. Please wait...")
 
-    for val in df.CONTENT: 
+    for val in df: 
     # typecaste each val to string 
         val = str(val) 
     # split the value 
@@ -74,7 +75,7 @@ if content_uploaded_file and stopword_uploaded_file is not None:
     wordcloud = WordCloud(width = 800, height = 800, 
         background_color = st.color_picker('Select a background color','#fff'), 
         stopwords = convert_stopwordfile(stopword_uploaded_file),
-        max_words = st.slider('Select the number of words to be displayed',1,21,21),
+        max_words = st.slider('Select the number of words to be displayed',1,50,25),
         min_font_size = 10).generate(comment_words)
 
 # plot the WordCloud image
