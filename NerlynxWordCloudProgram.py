@@ -10,12 +10,14 @@ from wordcloud import WordCloud, STOPWORDS
 import streamlit_ext as ste 
 from unidecode import unidecode
 
-
+##-------Funtions to be excuted in the application-------
+##Convert txt input file to bytes format for app
 def convert_stopwordfile (stopword_file):
     bytes_data = stopword_file.read()
     sw_list=bytes_data.decode("utf-8").splitlines()
     return sw_list
 
+##Convert plot from bytes format to downloadable png format
 def convert_plot():
     buffer = BytesIO()
     dataset = plt.savefig(buffer,format="png")
@@ -24,9 +26,22 @@ def convert_plot():
     buffer.close()
     return image_png
 
-
+##-------App Title-------
 # Add Title for Streamlit App
-st.title('WordCloudTool')
+st.title('Word Cloud Tool')
+
+##-------Work Instructions Tool Overview and Process Steps-------
+st.markdown("The word cloud tool creates an image showing the frequency of word use with smaller words used less frequently and larger words used more frequently. A Stopword list is used to filter out words that you want to ignore. Follow these instructions to create your word cloud.")
+st.markdown("""
+1. Prepare your excel spreadsheet by labeling the first cell of the column which includes your source data as CONTENT (**ensure all caps**)
+2. Save your file as a CSV
+3. Prepare your stopwords txt file by downloading the txt file, adding or removing any words to be ignored and save
+4. Add your spreadsheet and txt files to the tool
+5. Select any parameters you would like to apply
+6. Examine the output – if you want to remove additional words, add to your stopword file, save and reupload your new stopwords
+7. Download your Word Cloud!
+""")
+
 
 # File Uploader widgets with specified .csv and .txt file types with error statements returned
 st.subheader("Select a CSV file")
@@ -94,3 +109,4 @@ if content_uploaded_file and stopword_uploaded_file is not None:
         file_name='WordCloud.png',
         mime='image/png',
     )
+
