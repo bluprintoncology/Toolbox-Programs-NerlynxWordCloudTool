@@ -90,7 +90,7 @@ if content_uploaded_file and stopword_uploaded_file is not None:
     wordcloud = WordCloud(width = 800, height = 800, 
         background_color = st.color_picker('Select a background color','#fff'), 
         stopwords = convert_stopwordfile(stopword_uploaded_file),
-        max_words = st.slider('Select the number of words to be displayed',1,50,25),
+        max_words = st.slider('Select the number of words to be displayed',1,100,25),
         min_font_size = 10).generate(comment_words)
 
 # plot the WordCloud image
