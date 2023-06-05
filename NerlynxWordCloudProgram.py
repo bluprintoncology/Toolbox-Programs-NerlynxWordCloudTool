@@ -152,60 +152,36 @@ if check_password():
 
         df = df.replace('|'.join(remove_list),'',regex=True)
 
+        # Create list of words from cleaned up df
+        listofwords = df.to_list()
 
-        #input file take as bytes data, need to read out information from bytes back to string - need to append to list after
-        st.subheader('Review Input data (Optional)')
-        preview = st.checkbox('Show input data')
-        preview_placeholder = st.empty()
+        # Split into a list of single word strings
+        words = [words for segments in listofwords for words in segments.split()]
 
-        if preview:
-            with preview_placeholder.container():
-                st.subheader('Input data')
-                st.write(df) #main df with clinical stop words removed
-                st.stop() #Box checked: stops run
-        else:
-            preview_placeholder.empty() #Box unchecked: continues to run and no dataframe shown
-
-
-        comment_words = ""
+        # Remove stop words from the list called words
+        words_set_fromdflist = [word for word in words if word.lower() not in stoplist]
 
         placeholder=st.empty()
         placeholder.text("Generating WordCloud. Please wait...")
 
-        #Create Comment Word set and list
-        comment_words_list =[]
-        #DF UPDATED FROM COUNT SETUP WITH REPLACE/REGEX
-        for val in df: 
-        # typecaste each val to string 
-            val = str(val) 
-        # split the value 
-            tokens = val.split()     
-            # Converts each token into lowercase 
-            for i in range(len(tokens)): 
-                tokens[i] = tokens[i].lower()  
-            for words in tokens:
-                comment_words = comment_words + words + ' '
-            comment_words_list.append(comment_words)
-
-    
-        ##ADD FOR COUNT FREQ - MATCHES WORD CLOUD THEREFORE BEST****
-        #Split comment words list into separate strings items
-        comment_word_items = [words for segments in comment_words_list for words in segments.split()]
-        # Remove stop words from comment words list
-        words_set = [word for word in comment_word_items if word.lower() not in stoplist]
-        # Setup Value Counts Dataframe
-        words_set_df = pd.DataFrame(words_set, columns=['Word'])
-        # Remove any remaining punctuation strings detected
+        # Create a series/filter it to set to df Series for value count
+        words_set_df = pd.DataFrame(words_set_fromdflist, columns=['Word'])
         words_set_df.drop(words_set_df[words_set_df['Word']== '.'].index, inplace=True)
         words_set_df.drop(words_set_df[words_set_df['Word']== '+'].index, inplace=True)
         words_set_df.drop(words_set_df[words_set_df['Word']== '='].index, inplace=True)
+
         # Count Occurences of words
         words_set_df_counts = words_set_df.value_counts()
-        ##END OF ADD FOR COUNT FREQ
+        # Remove duplicates and use for final word count output
+        words_set_df_counts_unique = words_set_df_counts.drop_duplicates()
+
+        # Create single string that removes the list brackets for WordCloud
+        comment_words_list = words_set_df["Word"].to_list()
+        comment_words = ' '.join(comment_words_list)
 
         placeholder.empty()
         
-        #Create WordCloud Chart using comment_words string and stoplist words removed
+    # Create WordCloud Chart using comment_words string and stoplist words removed
         st.subheader('Customize WordCloud Design(Optional)')
         wordcloud = WordCloud(width = 800, height = 800, 
             background_color = st.color_picker('Select a background color','#fff'), 
@@ -213,7 +189,7 @@ if check_password():
             max_words = st.slider('Select the number of words to be displayed',1,50,25),
             min_font_size = 10).generate(comment_words)
 
-    # plot the WordCloud image
+    # Plot the WordCloud image
         figure = plt.figure(figsize = (8, 8), facecolor = None)
         # placeholder.empty() 
         plt.imshow(wordcloud) 
@@ -229,7 +205,7 @@ if check_password():
             file_name='WordCloud.png',
             mime='image/png',
         )
-        wordfreqcount = convert_csv_to_df(words_set_df_counts)
+        wordfreqcount = convert_csv_to_df(words_set_df_counts_unique)
         st.subheader('Download Word Frequency Count (Optional)')
         ste.download_button(
             label="Download WordFrequencyCount.csv",
